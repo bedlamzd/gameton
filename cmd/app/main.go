@@ -1,7 +1,11 @@
 package main
 
-import "github.com/bedlamzd/gameton/internal/app"
+import (
+	"fmt"
+
+	"github.com/bedlamzd/gameton/internal/api/client"
+)
 
 func main() {
-	app.Start()
+	fmt.Printf("%#v", client.GetUniverse())
 }
