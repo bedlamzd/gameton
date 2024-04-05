@@ -5,6 +5,7 @@ import (
 
 	"github.com/bedlamzd/gameton/internal/api/client"
 	"github.com/bedlamzd/gameton/internal/api/model"
+	"github.com/bedlamzd/gameton/internal/app"
 )
 
 func main() {
@@ -19,4 +20,6 @@ func main() {
 		break
 	}
 	fmt.Printf("%#v", client.Collect(&gb))
+
+	app.Start()
 }
