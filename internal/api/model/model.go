@@ -1,5 +1,10 @@
 package model
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type (
 	GarbageID    = string
 	GarbageShape = [][]int
@@ -25,12 +30,33 @@ type UniverseEdge struct {
 	Cost int
 }
 
-type Universe = []UniverseEdge
+func (t *UniverseEdge) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" || string(data) == "" {
+		return nil
+	}
+
+	var edge []interface{}
+	if err := json.Unmarshal(data, &edge); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(edge)
+	from := edge[0].(string)
+	to := edge[1].(string)
+	cost := edge[2].(float64)
+
+	*t = UniverseEdge{
+		From: from,
+		To:   to,
+		Cost: int(cost),
+	}
+	return nil
+}
 
 type UniverseResponse struct {
 	Name     string
 	Ship     Ship
-	Universe [][]any
+	Universe []UniverseEdge
 }
 
 type PlanetDiff struct {
