@@ -14,10 +14,10 @@ const (
 	Host      = "https://datsedenspace.datsteam.dev"
 )
 
-var client = http.Client{}
+var client = &http.Client{}
 
 func addAuth(req *http.Request) {
-	req.Header.Add("X-Auth-Token", AuthToken)
+	req.Header.Set("X-Auth-Token", AuthToken)
 }
 
 func GetUniverse() model.UniverseResponse {
@@ -42,6 +42,8 @@ func Travel(path *[]string) (model.TravelResponse, error) {
 		return model.TravelResponse{}, err
 	}
 	req, err := http.NewRequest("POST", Host+"/player/travel", bytes.NewBuffer(postBody))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
 	if err != nil {
 		return model.TravelResponse{}, err
 	}
@@ -63,19 +65,35 @@ func Travel(path *[]string) (model.TravelResponse, error) {
 	return result, nil
 }
 
-func Collect(garbage *model.GarbageMap) model.CollectResponse {
-	post_body, _ := json.Marshal(map[string]model.GarbageMap{"garbage": *garbage})
-	req, _ := http.NewRequest("POST", Host+"/player/collect", bytes.NewBuffer(post_body))
+func Collect(garbage *model.GarbageMap) (model.CollectResponse, error) {
+	postBody, err := json.Marshal(map[string]model.GarbageMap{"garbage": *garbage})
+	if err != nil {
+		return model.CollectResponse{}, err
+	}
+	req, err := http.NewRequest("POST", Host+"/player/collect", bytes.NewBuffer(postBody))
+	if err != nil {
+		return model.CollectResponse{}, err
+	}
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	addAuth(req)
 
-	res, _ := client.Do(req)
+	res, err := client.Do(req)
+	if err != nil {
+		return model.CollectResponse{}, err
+	}
 	defer res.Body.Close()
 
-	body, _ := io.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return model.CollectResponse{}, err
+	}
+
+	var r map[string]any
+	json.Unmarshal(body, &r)
 
 	var result model.CollectResponse
 	json.Unmarshal(body, &result)
-	return result
+	return result, nil
 }
 
 func GetRounds() model.RoundsResponse {
